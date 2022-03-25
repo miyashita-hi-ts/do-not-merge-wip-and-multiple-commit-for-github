@@ -17,8 +17,9 @@
       let localStorage = response.localStorage;
       const wipTitleRegex = /[\[(^](do\s*n[o']?t\s*merge|wip|dnm)[\]):]/i;
       const wipTagRegex = /(wip|do\s*not\s*merge|dnm)/i;
-      const isMultipleCommits = commitNumber != '1'
-      const isNotDevBranch = targetBranch != 'dev';
+      const isMultipleCommit = commitNumber != '1';
+      const isDevBranch = targetBranch == 'dev';
+      const isDevBranchAndMultipleCommit = isDevBranch && isMultipleCommit;
       const isWipTitle = wipTitleRegex.test(issueTitle);
       const isWipTaskList = container.querySelector('.timeline-comment') && container.querySelector('.timeline-comment').querySelector('input[type="checkbox"]:not(:checked)') !== null;
       let isSquashCommits = false;
@@ -31,7 +32,7 @@
         isWipTag = isWipTag || label.textContent.match(wipTagRegex);
       }
 
-      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || isNotDevBranch || isMultipleCommits);
+      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || isDevBranchAndMultipleCommit);
 
       let buttonMessage = '';
 
