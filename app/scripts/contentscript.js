@@ -36,7 +36,7 @@
         isWipTag = isWipTag || label.textContent.match(wipTagRegex);
       }
 
-      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit || isRelatedApollo));
+      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit && isRelatedApollo));
 
       let buttonMessage = '';
 
