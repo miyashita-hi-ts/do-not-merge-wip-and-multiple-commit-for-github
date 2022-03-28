@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  function changeMergeButtonState() {
+  async function changeMergeButtonState() {
+    await sleep(3000); // domが生成される前にセレクタで取得してもエラーになるため、一定時間を置く
+
     let container = document.querySelector('#js-repo-pjax-container');
     let issueTitle = container.querySelector('.js-issue-title').textContent;
     let targetBranch = container.querySelector('span.commit-ref.css-truncate.user-select-contain.expandable.base-ref > a > span').textContent;
@@ -34,7 +36,7 @@
         isWipTag = isWipTag || label.textContent.match(wipTagRegex);
       }
 
-      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit && isRelatedApollo));
+      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit || isRelatedApollo));
 
       let buttonMessage = '';
 
@@ -69,6 +71,8 @@
       setTimeout(changeMergeButtonState, 1000);
     });
   }
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
   changeMergeButtonState();
 })();
