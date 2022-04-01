@@ -2,7 +2,8 @@
   'use strict';
 
   async function changeMergeButtonState() {
-    await sleep(3000); // domが生成される前にセレクタで取得してもエラーになるため、一定時間を置く
+    let sleepTime = 2000;
+    await sleep(sleepTime); // domが生成される前にセレクタで取得してもエラーになるため、一定時間を置く
 
     let container = document.querySelector('#js-repo-pjax-container');
     let issueTitle = container.querySelector('.js-issue-title').textContent;
