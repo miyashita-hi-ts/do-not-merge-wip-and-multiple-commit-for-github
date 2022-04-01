@@ -20,7 +20,7 @@
       let localStorage = response.localStorage;
       const wipTitleRegex = /[\[(^](do\s*n[o']?t\s*merge|wip|dnm)[\]):]/i;
       const wipTagRegex = /(wip|do\s*not\s*merge|dnm)/i;
-      const isRelatedApollo = repositoryName == 'apollo' || 'apollo-shopping';
+      const isRelatedApollo = repositoryName == 'apollo' || repositoryName == 'apollo-shopping';
       const commitNumberLimit = 2;
       const isNotCombinedCommit = commitNumber > commitNumberLimit;
       const isDevBranch = targetBranch == 'dev';
