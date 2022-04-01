@@ -1,12 +1,14 @@
 (() => {
   'use strict';
 
-  function changeMergeButtonState() {
+  async function changeMergeButtonState() {
+    await sleep(3000); // domが生成される前にセレクタで取得してもエラーになるため、一定時間を置く
+
     let container = document.querySelector('#js-repo-pjax-container');
     let issueTitle = container.querySelector('.js-issue-title').textContent;
     let targetBranch = container.querySelector('span.commit-ref.css-truncate.user-select-contain.expandable.base-ref > a > span').textContent;
     let repositoryName = container.querySelector('h1 > strong > a').textContent;
-    let commitNumber = container.querySelector('#commits_tab_counter').textContent;
+    let commitNumber = Number(container.querySelector('#commits_tab_counter').textContent);
     let buttonMerges = container.querySelectorAll('.merge-message button[data-details-container]');
     let buttonMergeOptions = container.querySelectorAll('.merge-message button[data-details-container] + .select-menu-button');
     let disabled = false;
@@ -18,8 +20,9 @@
       let localStorage = response.localStorage;
       const wipTitleRegex = /[\[(^](do\s*n[o']?t\s*merge|wip|dnm)[\]):]/i;
       const wipTagRegex = /(wip|do\s*not\s*merge|dnm)/i;
-      const isApollo = repositoryName == 'apollo';
-      const isMultipleCommit = commitNumber != '1';
+      const isRelatedApollo = repositoryName == 'apollo' || repositoryName == 'apollo-shopping';
+      const commitNumberLimit = 2;
+      const isNotCombinedCommit = commitNumber > commitNumberLimit;
       const isDevBranch = targetBranch == 'dev';
       const isWipTitle = wipTitleRegex.test(issueTitle);
       const isWipTaskList = container.querySelector('.timeline-comment') && container.querySelector('.timeline-comment').querySelector('input[type="checkbox"]:not(:checked)') !== null;
@@ -33,7 +36,7 @@
         isWipTag = isWipTag || label.textContent.match(wipTagRegex);
       }
 
-      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isMultipleCommit && isApollo));
+      disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit && isRelatedApollo));
 
       let buttonMessage = '';
 
@@ -68,6 +71,8 @@
       setTimeout(changeMergeButtonState, 1000);
     });
   }
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
   changeMergeButtonState();
 })();
