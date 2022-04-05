@@ -1,19 +1,28 @@
 (() => {
   'use strict';
 
-  async function changeMergeButtonState() {
-    let sleepTime = 2000;
-    await sleep(sleepTime); // domが生成される前にセレクタで取得してもエラーになるため、一定時間を置く
+  let execCount = 0;
+  let keepRunning = true;
+  let url = null;
+
+  const observer = new MutationObserver(function () {
+    if (url != location.href) keepRunning = true;
+    url = location.href;
+    execCount = execCount + 1;
 
     let container = document.querySelector('#js-repo-pjax-container');
     let issueTitle = container.querySelector('.js-issue-title').textContent;
     let targetBranch = container.querySelector('span.commit-ref.css-truncate.user-select-contain.expandable.base-ref > a > span').textContent;
-    let repositoryName = container.querySelector('h1 > strong > a').textContent;
+    let repositoryName = container.querySelector('h2 > strong > a').textContent;
     let commitNumber = Number(container.querySelector('#commits_tab_counter').textContent);
     let buttonMerges = container.querySelectorAll('.merge-message button[data-details-container]');
     let buttonMergeOptions = container.querySelectorAll('.merge-message button[data-details-container] + .select-menu-button');
-    let disabled = false;
     let buttonHtml = '';
+    let disabled = false
+
+    if (container == 'null' || buttonMerges.length == 0 || repositoryName == 'null' || keepRunning == false) {
+      return ;
+    }
 
     chrome.runtime.sendMessage({from: 'content', subject: 'localStorage'}, function(response){
       if (!response) { return; }
@@ -28,6 +37,7 @@
       const isWipTitle = wipTitleRegex.test(issueTitle);
       const isWipTaskList = container.querySelector('.timeline-comment') && container.querySelector('.timeline-comment').querySelector('input[type="checkbox"]:not(:checked)') !== null;
       let isSquashCommits = false;
+
       for (const commitMessage of container.querySelectorAll('.commit-message')) {
         isSquashCommits = isSquashCommits || commitMessage.textContent.match(/(squash|fixup)!/);
       }
@@ -38,6 +48,8 @@
       }
 
       disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit && isRelatedApollo));
+
+      if (disabled == false) keepRunning = false;
 
       let buttonMessage = '';
 
@@ -56,24 +68,11 @@
       for (const buttonMergeOption of buttonMergeOptions) {
         buttonMergeOption.disabled = disabled;
       }
-
-      // unset variables
-      container = null;
-      issueTitle = null;
-      disabled = null;
-      buttonMerges = null;
-      buttonMergeOptions = null;
-      buttonHtml = null;
-      buttonMessage = null;
-      localStorage = null;
-      isSquashCommits = null;
-      isWipTag = null;
-
-      setTimeout(changeMergeButtonState, 1000);
+      keepRunning = false;
+      execCount = 0;
     });
-  }
 
-  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-  changeMergeButtonState();
+    if (execCount > 100) observer.disconnect();
+  })
+  observer.observe(document.getElementById('repo-content-pjax-container'), { childList: true, subtree: true })
 })();
