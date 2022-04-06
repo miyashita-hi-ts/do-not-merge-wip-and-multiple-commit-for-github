@@ -2,13 +2,12 @@
   'use strict';
 
   let execCount = 0;
-  let keepRunning = true;
+  let isKeepRunning = true;
   let url = null;
 
   const observer = new MutationObserver(function () {
-    if (url != location.href) keepRunning = true;
+    if (url != location.href) isKeepRunning = true;
     url = location.href;
-    execCount = execCount + 1;
 
     let container = document.querySelector('#js-repo-pjax-container');
     let issueTitle = container.querySelector('.js-issue-title').textContent;
@@ -20,9 +19,7 @@
     let buttonHtml = '';
     let disabled = false
 
-    if (container == 'null' || buttonMerges.length == 0 || repositoryName == 'null' || keepRunning == false) {
-      return ;
-    }
+    if (container == 'null' || buttonMerges.length == 0 || repositoryName == 'null' || isKeepRunning == false) { return ; }
 
     chrome.runtime.sendMessage({from: 'content', subject: 'localStorage'}, function(response){
       if (!response) { return; }
@@ -49,7 +46,7 @@
 
       disabled = (isWipTitle || isWipTaskList || isSquashCommits || isWipTag || (isDevBranch && isNotCombinedCommit && isRelatedApollo));
 
-      if (disabled == false) keepRunning = false;
+      if (disabled == false) isKeepRunning = false;
 
       let buttonMessage = '';
 
@@ -68,11 +65,13 @@
       for (const buttonMergeOption of buttonMergeOptions) {
         buttonMergeOption.disabled = disabled;
       }
-      keepRunning = false;
+      isKeepRunning = false;
       execCount = 0;
     });
 
-    if (execCount > 100) observer.disconnect();
+    const maxExecCount = 50;
+    execCount = execCount + 1;
+    if (execCount > maxExecCount) observer.disconnect();
   })
   observer.observe(document.getElementById('repo-content-pjax-container'), { childList: true, subtree: true })
 })();
