@@ -1,5 +1,6 @@
 # Do not merge wip and multiple commit for github
 
+## 動作助件
 Apolloリポジトリで、以下の2つのどちらかを満たしているとマージボタンが押せない様になります。
 
 * PRのタイトルに"WIP"がある
