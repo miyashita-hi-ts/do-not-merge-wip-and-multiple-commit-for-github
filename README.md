@@ -1,4 +1,4 @@
-# do-not-merge-wip-and-multiple-commit-for-github
+# Do not merge wip and multiple commit for github
 
 Apolloリポジトリで、以下の2つのどちらかを満たしているとマージボタンが押せない様になります。
 
