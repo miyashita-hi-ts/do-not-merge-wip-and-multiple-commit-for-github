@@ -9,6 +9,10 @@
     if (url != location.href) isKeepRunning = true;
     url = location.href;
 
+    const prPageRegex = /\/pull\//;
+    const isPullRequestPage = url.match(prPageRegex);
+    if (!isPullRequestPage) { return; }
+
     let container = document.querySelector('#js-repo-pjax-container');
     let issueTitle = container.querySelector('.js-issue-title').textContent;
     let targetBranch = container.querySelector('span.commit-ref.css-truncate.user-select-contain.expandable.base-ref > a > span').textContent;
@@ -19,7 +23,7 @@
     let buttonHtml = '';
     let disabled = false
 
-    if (container == 'null' || buttonMerges.length == 0 || repositoryName == 'null' || isKeepRunning == false) { return ; }
+    if (container == 'null' || buttonMerges.length == 0 || repositoryName == 'null' || isKeepRunning == false) { return; }
 
     chrome.runtime.sendMessage({from: 'content', subject: 'localStorage'}, function(response){
       if (!response) { return; }
